@@ -18,7 +18,7 @@ interface QuestionResult {
 
 export function Game() {
   const [gameState, setGameState] = useState<GameState>({
-    currentWord: wordList[0],
+    currentWord: wordList[Math.floor(Math.random() * wordList.length)],
     scrambledWord: '',
     score: 0,
     showHint: false,
