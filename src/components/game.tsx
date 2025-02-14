@@ -105,7 +105,7 @@ export function Game() {
       });
       setResults([]);
       setFeedback('');
-    }, 2000);
+    }, 10000);
   };
 
   const handleShowHint = () => {
