@@ -97,7 +97,7 @@ export function Game() {
     setFeedback('Game Ended');
     setTimeout(() => {
       setGameState({
-        currentWord: wordList[0],
+        currentWord: wordList[Math.floor(Math.random() * wordList.length)],
         scrambledWord: '',
         score: 0,
         showHint: false,
@@ -122,9 +122,14 @@ export function Game() {
   return (
     <div className="w-full max-w-md mx-auto">
       {!gameStarted ? (
-        <button onClick={handleStart} className="w-full p-4 mb-4 text-white bg-green-500 rounded-lg">
-          Start Game
-        </button>
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Word Scramble
+          </h1>
+          <button onClick={handleStart} className="w-full p-4 mb-4 text-white bg-green-500 rounded-lg">
+            Start Game
+          </button>
+        </div>
       ) : (
         <div className="relative overflow-hidden rounded-2xl bg-card shadow-2xl border border-border/50 backdrop-blur-sm">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
