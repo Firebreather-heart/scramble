@@ -3,14 +3,45 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #ffffff;
+  --background: #171717;
+  --border: #333333;
+  --primary: 142.1 76.2% 36.3%;
+  --primary-foreground: 355.7 100% 97.3%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+  .game-input {
+    @apply w-full px-4 py-3 text-lg rounded-lg border-2 border-neutral-700 bg-white/50 dark:bg-black/50 focus:outline-none transition-all duration-200;
+  }
+
+  .game-input:focus {
+    @apply ring-2 focus:border-primary;
+    /* Set the custom focus ring color */
+    --tw-ring-color: hsla(var(--primary), 0.2);
+  }
+
+  .game-button {
+    @apply px-6 py-3 rounded-lg font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .primary-button {
+    @apply game-button bg-primary text-[hsl(var(--primary-foreground))] hover:opacity-90 focus:ring-2;
+  }
+
+  .primary-button:focus {
+    /* Apply the same custom ring color */
+    --tw-ring-color: hsla(var(--primary), 0.2);
+  }
+
+  .secondary-button {
+    @apply game-button bg-secondary text-[hsl(var(--secondary-foreground))] hover:opacity-80 focus:ring-2;
+  }
+
+  .secondary-button:focus {
+    --tw-ring-color: hsla(var(--secondary), 0.2);
   }
 }
 
