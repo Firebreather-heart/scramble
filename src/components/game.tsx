@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { wordList, scrambleWord, WordEntry } from '@/lib/words';
 import StartButton from './startButton';
 import HelpCard from './helpCard';
@@ -33,6 +33,7 @@ export function Game() {
   const [gameStarted, setGameStarted] = useState(false);
   const [results, setResults] = useState<QuestionResult[]>([]);
   const [showHelp, setShowHelp] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setGameState(state => ({
@@ -99,6 +100,7 @@ export function Game() {
         showHint: false,
       }));
       setUserInput('');
+      inputRef.current?.focus();
     } else {
       setFeedback('Try again!');
     }
@@ -192,10 +194,15 @@ export function Game() {
                 type="text"
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
+                ref={inputRef}
                 className="w-full p-4 mb-4 text-green-500 rounded-lg focus:outline-none"
                 placeholder="Your answer here"
               />
-              {feedback && <p className="text-red-500 font-bold">{feedback}</p>}
+              {feedback && (
+                <p className={`font-bold ${feedback === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
+                  {feedback}
+                </p>
+              )}
             </form>
             <div className="text-center">
               <p>Score: {gameState.score}</p>
