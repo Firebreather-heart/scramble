@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { wordList, scrambleWord } from '@/lib/words';
+import { wordList, scrambleWord, WordEntry } from '@/lib/words';
+import StartButton from './startButton';
+import HelpCard from './helpCard';
 
 interface GameState {
-  currentWord: typeof wordList[number];
+  currentWord: WordEntry;
   scrambledWord: string;
   score: number;
   showHint: boolean;
@@ -17,8 +19,10 @@ interface QuestionResult {
 }
 
 export function Game() {
+  const [selectedDomain, setSelectedDomain] = useState<keyof typeof wordList>('generalKnowledge');
+  const [usedWords, setUsedWords] = useState<WordEntry[]>([]);
   const [gameState, setGameState] = useState<GameState>({
-    currentWord: wordList[Math.floor(Math.random() * wordList.length)],
+    currentWord: wordList[selectedDomain][Math.floor(Math.random() * wordList[selectedDomain].length)],
     scrambledWord: '',
     score: 0,
     showHint: false,
@@ -50,7 +54,7 @@ export function Game() {
     if (gameState.timeLeft <= 0) {
       if (userInput.trim() === '') {
         setFeedback("Penalty: -5 points!");
-        const nextWord = wordList[Math.floor(Math.random() * wordList.length)];
+        const nextWord = wordList[selectedDomain][Math.floor(Math.random() * wordList[selectedDomain].length)];
         setResults(prevResults => [...prevResults, { word: gameState.currentWord.word, score: -5 }]);
         setGameState(prev => ({
           ...prev,
@@ -68,17 +72,29 @@ export function Game() {
     }
   }, [gameState.timeLeft, userInput]);
 
+  const getRandomWord = (domain: keyof typeof wordList): WordEntry => {
+    const availableWords = wordList[domain].filter(word => !usedWords.includes(word));
+    if (availableWords.length === 0) {
+      setUsedWords([]);
+      return wordList[domain][Math.floor(Math.random() * wordList[domain].length)];
+    }
+    const randomIndex = Math.floor(Math.random() * availableWords.length);
+    return availableWords[randomIndex];
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (userInput.toLowerCase() === gameState.currentWord.word) {
       const score = gameState.showHint ? 5 : 10;
       setFeedback('Correct!');
       setResults(prevResults => [...prevResults, { word: gameState.currentWord.word, score }]);
+      setUsedWords(prev => [...prev, gameState.currentWord]);
+      const newWord = getRandomWord(selectedDomain);
       setGameState(state => ({
         ...state,
         score: state.score + score,
-        currentWord: wordList[Math.floor(Math.random() * wordList.length)],
-        scrambledWord: scrambleWord(state.currentWord.word),
+        currentWord: newWord,
+        scrambledWord: scrambleWord(newWord.word),
         timeLeft: 30,
         showHint: false,
       }));
@@ -89,6 +105,15 @@ export function Game() {
   };
 
   const handleStart = () => {
+    const newWord = getRandomWord(selectedDomain);
+    setGameState(state => ({
+      ...state,
+      currentWord: newWord,
+      scrambledWord: scrambleWord(newWord.word),
+      score: 0,
+      timeLeft: 30,
+      showHint: false,
+    }));
     setGameStarted(true);
   };
 
@@ -97,7 +122,7 @@ export function Game() {
     setFeedback('Game Ended');
     setTimeout(() => {
       setGameState({
-        currentWord: wordList[Math.floor(Math.random() * wordList.length)],
+        currentWord: wordList[selectedDomain][Math.floor(Math.random() * wordList[selectedDomain].length)],
         scrambledWord: '',
         score: 0,
         showHint: false,
@@ -119,16 +144,31 @@ export function Game() {
     setShowHelp(!showHelp);
   };
 
+  const handleClickOutsideHelp = () => {
+    if (showHelp) {
+      toggleHelp();
+    }
+  };
+
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto" onClick={handleClickOutsideHelp}>
       {!gameStarted ? (
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
             Word Scramble
           </h1>
-          <button onClick={handleStart} className="w-full p-4 mb-4 text-white bg-green-500 rounded-lg">
-            Start Game
-          </button>
+          <div className="flex flex-wrap justify-center">
+            {Object.keys(wordList).map((domain) => (
+              <button
+                key={domain}
+                onClick={() => setSelectedDomain(domain as keyof typeof wordList)}
+                className={`m-2 p-2 border rounded-lg ${selectedDomain === domain ? 'border-green-600 text-white shadow-md shadow-lime-800' : 'border-gray-200'}`}
+              >
+                {domain.replace(/([A-Z])/g, ' $1')}
+              </button>
+            ))}
+          </div>
+          <StartButton onStart={handleStart} selectedDomain={selectedDomain} />
         </div>
       ) : (
         <div className="relative overflow-hidden rounded-2xl bg-card shadow-2xl border border-border/50 backdrop-blur-sm">
@@ -185,23 +225,13 @@ export function Game() {
           </ul>
         </div>
       )}
-      <button onClick={toggleHelp} className="w-full p-4 mt-4 bg-gray-500 rounded-lg">
-        {showHelp ? 'Hide Help' : 'Show Help'}
-      </button>
-      {showHelp && (
-        <div className="mt-4 p-4 text-secondary bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4">Help</h2>
-          <p>Welcome to the Word Scramble game! Here are the rules:</p>
-          <ul className="list-disc list-inside">
-            <li>Unscramble the word shown on the screen.</li>
-            <li>Type your answer in the input box and press Enter.</li>
-            <li>If you need a hint, click the "Show Hint" button. Using a hint will reduce the score for that word to 5 points.</li>
-            <li>If you answer correctly without using a hint, you will earn 10 points.</li>
-            <li>If the timer runs out and you haven't answered, you will lose 5 points.</li>
-            <li>Click "End Game" to stop the game and see your results.</li>
-          </ul>
-        </div>
-      )}
+
+      <div className='absolute top-0 right-2'>
+        <button onClick={toggleHelp} className="w-full p-2 mt-4 bg-transparent rounded-lg">
+          <span className="material-icons"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-info"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg></span>
+        </button>
+        <HelpCard showHelp={showHelp} toggleHelp={toggleHelp} />
+      </div>
     </div>
   );
 }
