@@ -9,7 +9,6 @@ const HelpCard: React.FC<HelpCardProps> = ({ showHelp, toggleHelp }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Focus trap and escape key handler
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && showHelp) {
         toggleHelp();
@@ -37,14 +36,14 @@ const HelpCard: React.FC<HelpCardProps> = ({ showHelp, toggleHelp }) => {
       <div 
         ref={cardRef}
         className={`
-          bg-white rounded-lg shadow-lg w-80 max-w-md border border-indigo-100
+          bg-white rounded-lg shadow-lg w-80 max-w-md border border-green-100
           p-6 text-gray-700 transform transition-all duration-300 ease-out
           ${showHelp ? 'translate-y-0 scale-100' : 'translate-y-8 scale-95 opacity-0'}
         `}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-indigo-600">How to Play</h2>
+          <h2 className="text-2xl font-bold text-green-600">How to Play</h2>
           <button 
             onClick={toggleHelp}
             className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
@@ -68,7 +67,7 @@ const HelpCard: React.FC<HelpCardProps> = ({ showHelp, toggleHelp }) => {
             "Click 'End Game' to stop the game and see your results."
           ].map((rule, index) => (
             <li key={index} className="flex items-start">
-              <span className="inline-flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-full h-5 w-5 text-xs font-bold mr-2 mt-0.5">
+              <span className="inline-flex items-center justify-center bg-green-100 text-green-600 rounded-full h-5 w-5 text-xs font-bold mr-2 mt-0.5">
                 {index + 1}
               </span>
               <span>{rule}</span>
@@ -78,7 +77,7 @@ const HelpCard: React.FC<HelpCardProps> = ({ showHelp, toggleHelp }) => {
         
         <button
           onClick={toggleHelp}
-          className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-colors duration-200 mt-2"
+          className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors duration-200 mt-2"
         >
           Got it!
         </button>
